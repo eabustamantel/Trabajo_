@@ -1,0 +1,171 @@
+# EXPLICACIÓN DETALLADA DE FRAGMENTOS DE app.py
+# ============================================
+
+## 1. IMPORTS INICIALES
+# ---------------------
+```python
+from flask import Flask, request, jsonify, send_from_directory, redirect, session
+from flask_cors import CORS
+from models import (
+    initialize_tables,
+    get_clientes, get_cliente_by_id, create_cliente, update_cliente, delete_cliente,
+    get_inventarios, get_inventario_by_id, create_inventario, update_inventario, delete_inventario,
+    get_vehiculos, get_vehiculo_by_id, create_vehiculo, update_vehiculo, delete_vehiculo,
+    get_ordenes, get_orden_by_id, create_orden, update_orden, delete_orden,
+    get_empleados, get_empleado_by_id, create_empleado, update_empleado, delete_empleado,
+    get_proveedores, get_proveedor_by_id, create_proveedor, update_proveedor, delete_proveedor,
+    get_admin_by_credentials, create_admin,
+    supabase
+)
+from config import Config
+```
+IMPORTA FUNCIONES DE models.py EN LUGAR DE CLASES SQLALCHEMY. AHORA USA FUNCIONES PARA OPERACIONES CRUD CON SUPABASE.
+
+## 2. INICIALIZACIÓN DE FLASK
+# --------------------------
+```python
+app = Flask(__name__)
+app.config.from_object(Config)
+app.secret_key = Config.SECRET_KEY
+CORS(app)
+```
+CONFIGURA LA APLICACIÓN FLASK CON LA CLASE Config QUE AHORA CONTIENE VARIABLES DE SUPABASE EN LUGAR DE SQLALCHEMY.
+
+## 3. RUTAS ESTÁTICAS
+# ------------------
+```python
+@app.route('/')
+def index():
+    if 'logged_in' in session:
+        return send_from_directory('../frontend', 'index.html')
+    else:
+        return redirect('/login')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory('../frontend', path)
+```
+MANEJA LA AUTENTICACIÓN DE SESIONES Y SIRVE ARCHIVOS ESTÁTICOS DEL FRONTEND. SIN CAMBIOS DE SUPABASE.
+
+## 4. CRUD CLIENTES - EJEMPLO TÍPICO
+# ----------------------------------
+```python
+@app.route('/api/clientes', methods=['GET'])
+def get_clientes_endpoint():
+    try:
+        clientes = get_clientes()  # LLAMA A FUNCIÓN DE models.py
+        return jsonify(clientes)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+USA TRY/EXCEPT PARA MANEJAR ERRORES. LLAMA A get_clientes() QUE AHORA USA SUPABASE EN LUGAR DE SQLALCHEMY.
+
+```python
+@app.route('/api/clientes', methods=['POST'])
+def create_cliente_endpoint():
+    try:
+        data = request.get_json()
+
+        # Check for existing client by email or telefono
+        existing_clientes = supabase.table('clientes').select('*').or_(
+            f"email.eq.{data.get('email')},telefono.eq.{data.get('telefono')}"
+        ).execute()
+
+        if existing_clientes.data:
+            return jsonify({'error': '⚠️ El cliente ya existe. No se puede duplicar el registro.'}), 409
+
+        cliente = create_cliente(data)  # LLAMA A FUNCIÓN DE models.py
+        return jsonify({'message': 'Cliente creado', 'id': cliente['id']}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+VALIDA DUPLICADOS USANDO SUPABASE DIRECTAMENTE (supabase.table). LLAMA A create_cliente() QUE USA SUPABASE.
+
+## 5. CRUD ÓRDENES - SIN VALIDACIONES
+# -----------------------------------
+```python
+@app.route('/api/ordenes', methods=['POST'])
+def create_orden_endpoint():
+    try:
+        data = request.get_json()
+        orden = create_orden(data)  # LLAMA A create_orden() SIN VALIDACIONES
+        if not orden:
+            return jsonify({'error': 'Failed to create orden'}), 500
+        return jsonify({'message': 'Orden creada', 'id': orden['id']}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+CREA ÓRDENES SIN VALIDAR SI cliente_id Y vehiculo_id EXISTEN. PERMITE IDs INEXISTENTES.
+
+## 6. GENERACIÓN DE PDFs
+# ---------------------
+```python
+@app.route('/api/pdf/<entity>', methods=['GET'])
+def generate_pdf(entity):
+    # ... código de ReportLab ...
+    if entity == 'clientes':
+        data = get_clientes()  # USA FUNCIONES DE models.py
+        headers = ['ID', 'Nombre', 'Apellido', 'Teléfono', 'Email', 'Dirección']
+        table_data = [headers] + [[d['id'], d['nombre'], d['apellido'], d['telefono'], d['email'], d['direccion']] for d in data]
+        title = "Reporte de Clientes"
+    # ... más entidades ...
+```
+USA LAS FUNCIONES DE models.py PARA OBTENER DATOS DE SUPABASE. EL RESTO DE ReportLab SIGUE IGUAL.
+
+## 7. LOGIN
+# --------
+```python
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    usuario = data.get('usuario')
+    password = data.get('password')
+
+    if not usuario or not password:
+        return jsonify({'error': 'Usuario y contraseña son requeridos'}), 400
+
+    # Hash the password
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+    # Check in admin table (note: password in DB might not be hashed)
+    admin = get_admin_by_credentials(usuario, password)  # Try plain password first
+    if not admin:
+        admin = get_admin_by_credentials(usuario, hashed_password)  # Fallback to hashed
+    if admin:
+        session['logged_in'] = True
+        session['user'] = usuario
+        return jsonify({'message': 'Login exitoso'}), 200
+    else:
+        return jsonify({'error': 'Credenciales incorrectas'}), 401
+```
+MANTIENE LOGIN CON TABLA admin. USA get_admin_by_credentials() QUE AHORA CONSULTA SUPABASE.
+
+## 8. MANEJO DE ERRORES CONSISTENTE
+# ---------------------------------
+TODOS LOS ENDPOINTS SIGUEN EL PATRÓN:
+```python
+try:
+    # operación
+    return jsonify(resultado)
+except Exception as e:
+    return jsonify({'error': str(e)}), 500
+```
+MANEJO DE ERRORES CONSISTENTE EN TODOS LOS ENDPOINTS.
+
+## 9. EJECUCIÓN DE LA APP
+# -----------------------
+```python
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+EJECUTA LA APLICACIÓN EN MODO DEBUG. YA NO INICIALIZA BASE DE DATOS SQLALCHEMY.
+
+## RESUMEN DE CAMBIOS PRINCIPALES:
+# ---------------------------------
+- IMPORTS: Funciones de models.py en lugar de clases SQLAlchemy
+- CONFIG: Variables de Supabase en lugar de URI PostgreSQL
+- CRUD: Llamadas a funciones que usan Supabase
+- ÓRDENES: Sin validaciones de claves foráneas
+- LOGIN: Compatible con tabla admin en Supabase
+- PDFs: Funcionan igual con datos de Supabase
+- ERRORES: Manejo consistente en todos los endpoints

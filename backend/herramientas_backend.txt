@@ -1,0 +1,41 @@
+Herramientas y Tecnologías Utilizadas en el Backend
+==================================================
+
+Lenguaje de Programación:
+- Python 3.x
+
+Framework Web:
+- Flask (para crear la API REST)
+
+Librerías y Dependencias:
+- Flask-CORS (para manejar CORS en las peticiones)
+- Supabase (cliente Python para la base de datos Supabase)
+- ReportLab (para generar reportes en PDF)
+- python-dotenv (para manejar variables de entorno, usado en config.py)
+
+Módulos Estándar de Python:
+- hashlib (para hashear contraseñas)
+- datetime (para manejar fechas y horas)
+- os (para operaciones del sistema de archivos)
+- io.BytesIO (para manejar buffers de memoria para PDFs)
+
+Base de Datos:
+- Supabase (servicio de base de datos PostgreSQL en la nube)
+
+Herramientas de Desarrollo:
+- pip (gestor de paquetes de Python)
+- requirements.txt (para listar dependencias)
+
+Servidor:
+- Flask development server (para desarrollo local)
+
+Autenticación:
+- Sesiones de Flask (para manejar login/logout)
+- Hash SHA-256 (para contraseñas)
+
+Generación de Reportes:
+- ReportLab (para crear PDFs con tablas y estilos)
+
+Otros:
+- JSON (para comunicación API)
+- HTTP methods (GET, POST, PUT, DELETE)

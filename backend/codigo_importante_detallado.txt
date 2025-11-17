@@ -1,0 +1,112 @@
+# CÓDIGO IMPORTANTE - MIGRACIÓN A SUPABASE
+# ======================================
+
+## 1. CONFIGURACIÓN (config.py)
+# -----------------------------
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'root'
+    SUPABASE_URL = os.environ.get('SUPABASE_URL')
+    SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+    SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
+```
+CARGA VARIABLES DE ENTORNO Y CONFIGURA SUPABASE
+
+## 2. MODELOS (models.py)
+# -----------------------
+
+```python
+from supabase import create_client, Client
+from config import Config
+
+# INICIALIZA CLIENTE DE SUPABASE
+supabase: Client = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+```
+
+```python
+class SupabaseCRUD:
+    @staticmethod
+    def create(table_name, data):
+        try:
+            response = supabase.table(table_name).insert(data).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error in create for {table_name}: {e}")
+            raise ValueError(str(e))
+```
+CLASE PARA OPERACIONES CRUD BÁSICAS CON SUPABASE
+
+```python
+def create_orden(data):
+    # NO valida existencia de cliente_id o vehiculo_id, registra tal como viene
+    return SupabaseCRUD.create('ordenes', data)
+
+def update_orden(id, data):
+    # NO valida existencia de cliente_id o vehiculo_id, actualiza tal como viene
+    return SupabaseCRUD.update('ordenes', id, data)
+```
+FUNCIONES DE ÓRDENES SIN VALIDACIONES DE CLAVES FORÁNEAS
+
+## 3. APLICACIÓN (app.py)
+# -----------------------
+
+```python
+from models import (
+    get_clientes, create_cliente, update_cliente, delete_cliente,
+    get_ordenes, create_orden, update_orden, delete_orden,
+    # ... otros imports
+)
+```
+IMPORTA FUNCIONES DE models.py EN LUGAR DE CLASES SQLALCHEMY
+
+```python
+@app.route('/api/ordenes', methods=['POST'])
+def create_orden_endpoint():
+    try:
+        data = request.get_json()
+        orden = create_orden(data)  # LLAMA A FUNCIÓN SIN VALIDACIONES
+        return jsonify({'message': 'Orden creada', 'id': orden['id']}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+ENDPOINT QUE CREA ÓRDENES SIN VALIDAR EXISTENCIA DE CLIENTE/VEHÍCULO
+
+## 4. ESQUEMA DE BASE DE DATOS (create_tables.sql)
+# -------------------------------------------------
+
+```sql
+CREATE TABLE IF NOT EXISTS ordenes (
+    id SERIAL PRIMARY KEY,
+    descripcion TEXT NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(20) DEFAULT 'pendiente',
+    cliente_id INTEGER,  -- SIN RESTRICCIÓN REFERENCES
+    vehiculo_id INTEGER  -- SIN RESTRICCIÓN REFERENCES
+);
+```
+TABLA ORDENES SIN CLAVES FORÁNEAS PARA PERMITIR IDs INEXISTENTES
+
+## 5. DEPENDENCIAS (requirements.txt)
+# -----------------------------------
+```
+Flask==2.3.3
+Flask-CORS==4.0.0
+reportlab==4.0.7
+supabase==2.3.0
+python-dotenv==1.0.0
+```
+DEPENDENCIAS ACTUALIZADAS: SUPABASE Y DOTENV AGREGADOS, SQLALCHEMY REMOVIDO
+
+## 6. FUNCIONALIDADES CLAVE IMPLEMENTADAS
+# ----------------------------------------
+✅ CRUD completo con Supabase en lugar de SQLAlchemy
+✅ Órdenes sin validación de claves foráneas
+✅ Login compatible con tabla admin existente
+✅ Generación de PDFs funcionando
+✅ Manejo de errores consistente
+✅ Compatibilidad con frontend existente

@@ -1,0 +1,118 @@
+Explicación del Archivo models.py
+===============================
+
+Este archivo contiene todas las funciones y lógica para interactuar con la base de datos Supabase.
+Es el puente entre la aplicación Flask (app.py) y la base de datos.
+
+ESTRUCTURA GENERAL:
+==================
+
+1. IMPORTACIONES:
+   - supabase: Cliente para conectar con Supabase
+   - config: Para obtener las credenciales de Supabase
+   - os: Para operaciones del sistema
+
+2. INICIALIZACIÓN DE SUPABASE:
+   - Se crea un cliente global de Supabase usando URL y KEY del config
+
+3. CLASE SupabaseCRUD:
+   - Clase estática con métodos genéricos para operaciones CRUD
+   - Métodos: get_all, get_by_id, create, update, delete, get_where
+   - Maneja errores y logging
+
+4. FUNCIONES ESPECÍFICAS POR ENTIDAD:
+   - Para cada tabla (clientes, inventario, vehiculos, ordenes, empleados, proveedores)
+   - Funciones: get_[entidad], get_[entidad]_by_id, create_[entidad], update_[entidad], delete_[entidad]
+
+FUNCIONES CRUD GENÉRICAS (SupabaseCRUD):
+=======================================
+
+get_all(table_name):
+   - Obtiene todos los registros de una tabla
+   - Retorna lista vacía si hay error
+
+get_by_id(table_name, id):
+   - Obtiene un registro específico por ID
+   - Retorna None si no existe o hay error
+
+create(table_name, data):
+   - Inserta un nuevo registro
+   - Retorna el registro creado o lanza ValueError si hay error
+
+update(table_name, id, data):
+   - Actualiza un registro existente
+   - Retorna el registro actualizado o None si hay error
+
+delete(table_name, id):
+   - Elimina un registro por ID
+   - Retorna el registro eliminado o None si hay error
+
+get_where(table_name, column, value):
+   - Obtiene registros que cumplan una condición específica
+   - Útil para búsquedas filtradas
+
+FUNCIONES ESPECÍFICAS POR ENTIDAD:
+=================================
+
+CLIENTES:
+- get_clientes(): Lista todos los clientes
+- get_cliente_by_id(id): Cliente específico
+- create_cliente(data): Crear nuevo cliente
+- update_cliente(id, data): Actualizar cliente
+- delete_cliente(id): Eliminar cliente
+
+INVENTARIO:
+- Similar a clientes, pero para items del inventario
+- Tabla: 'inventario'
+
+VEHICULOS:
+- Gestión de vehículos
+- Tabla: 'vehiculos'
+
+ORDENES:
+- get_ordenes(): Lista órdenes con nombre del cliente incluido
+- Incluye lógica adicional para mostrar cliente_nombre en cada orden
+- create_orden() y update_orden(): No validan existencia de cliente_id/vehiculo_id
+
+EMPLEADOS:
+- Gestión de empleados
+- Tabla: 'empleados'
+
+PROVEEDORES:
+- Gestión de proveedores
+- Tabla: 'proveedores'
+
+ADMIN:
+- get_admin_by_credentials(): Para login (usuario + password hasheada)
+- create_admin(): Crear usuario admin
+
+CARACTERÍSTICAS IMPORTANTES:
+==========================
+
+1. MANEJO DE ERRORES:
+   - Todos los métodos tienen try/except
+   - Logging de errores en consola
+   - Retorno de valores seguros (None, [], etc.)
+
+2. RELACIONES:
+   - En get_ordenes(), se incluye el nombre del cliente
+   - Esto evita consultas adicionales en el frontend
+
+3. VALIDACIONES MÍNIMAS:
+   - No se validan FKs (foreign keys) en órdenes
+   - Se permite crear órdenes con IDs inexistentes
+
+4. AUTENTICACIÓN:
+   - Función específica para login de admin
+   - Compara usuario y password hasheada
+
+USO EN app.py:
+=============
+
+Cada endpoint en app.py llama a estas funciones:
+- GET /api/clientes → get_clientes()
+- POST /api/clientes → create_cliente(data)
+- PUT /api/clientes/<id> → update_cliente(id, data)
+- DELETE /api/clientes/<id> → delete_cliente(id)
+
+Esto separa la lógica de negocio (models.py) de la lógica de API (app.py).

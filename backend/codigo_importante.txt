@@ -1,0 +1,89 @@
+# CÓDIGO IMPORTANTE - MIGRACIÓN A SUPABASE
+# ======================================
+
+## 1. CONFIGURACIÓN (config.py)
+# -----------------------------
+# - Carga variables de entorno con python-dotenv
+# - Configura URL, KEY y SERVICE_ROLE_KEY de Supabase
+# - Elimina configuración de SQLAlchemy
+
+## 2. MODELOS (models.py)
+# -----------------------
+
+### Inicialización de Supabase:
+# - Importa create_client de supabase
+# - Inicializa cliente con URL y KEY desde config
+# - Reemplaza SQLAlchemy db por cliente Supabase
+
+### Clase SupabaseCRUD:
+# - Métodos estáticos para operaciones CRUD básicas
+# - Manejo de errores consistente
+# - Retorno de datos o None en caso de error
+
+### Funciones específicas por entidad:
+# - get_[entidad]es(): Retorna lista de registros
+# - get_[entidad]_by_id(id): Retorna registro específico
+# - create_[entidad](data): Crea nuevo registro
+# - update_[entidad](id, data): Actualiza registro existente
+# - delete_[entidad](id): Elimina registro
+
+### Funciones de Órdenes (IMPORTANTE):
+# - create_orden(data): NO valida existencia de cliente_id/vehiculo_id
+# - update_orden(id, data): NO valida existencia de cliente_id/vehiculo_id
+# - Permite registrar órdenes con IDs inexistentes
+
+## 3. APLICACIÓN (app.py)
+# -----------------------
+
+### Imports:
+# - Importa funciones de models.py en lugar de clases SQLAlchemy
+# - Mantiene imports de Flask, CORS, reportlab
+
+### Endpoints CRUD:
+# - Cada endpoint envuelto en try/except
+# - Retorna JSON con mensajes de éxito/error
+# - Manejo de errores 404 para recursos no encontrados
+# - Manejo de errores 500 para excepciones generales
+
+### Endpoint de Órdenes (IMPORTANTE):
+# - POST /api/ordenes: Crea orden sin validaciones
+# - PUT /api/ordenes/<id>: Actualiza orden sin validaciones
+# - Permite IDs de cliente/vehículo inexistentes
+
+### Login:
+# - Mantiene login basado en tabla admin
+# - Compatible con credenciales existentes
+
+### PDFs:
+# - Funciona igual, usa funciones de models.py
+# - Genera reportes con datos de Supabase
+
+## 4. DEPENDENCIAS (requirements.txt)
+# -----------------------------------
+# - Flask, Flask-CORS, reportlab (mantenidos)
+# - supabase (nueva)
+# - python-dotenv (nueva)
+# - Eliminados: Flask-SQLAlchemy, psycopg2-binary
+
+## 5. ESQUEMA DE BASE DE DATOS (create_tables.sql)
+# -------------------------------------------------
+# - Tabla ordenes SIN restricciones REFERENCES
+# - cliente_id INTEGER (sin FK)
+# - vehiculo_id INTEGER (sin FK)
+# - Otras tablas mantienen estructura similar
+
+## 6. VARIABLES DE ENTORNO (.env)
+# --------------------------------
+# - SUPABASE_URL: URL del proyecto Supabase
+# - SUPABASE_KEY: Clave anónima
+# - SUPABASE_SERVICE_ROLE_KEY: Clave de servicio
+# - SECRET_KEY: Para sesiones Flask
+
+## 7. FUNCIONALIDADES CLAVE
+# -------------------------
+# - CRUD completo para todas las entidades
+# - Órdenes sin validación de claves foráneas
+# - Login con tabla admin
+# - Generación de PDFs
+# - Manejo de errores consistente
+# - Compatibilidad con frontend existente

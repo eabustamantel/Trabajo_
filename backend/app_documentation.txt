@@ -1,0 +1,377 @@
+DOCUMENTACIÓN TÉCNICA - API BACKEND TALLER VALENCIANO GUAYAQUIL 2025
+===================================================================
+
+Esta documentación describe las funciones principales del módulo backend/app.py,
+que implementa una API REST para el sistema de gestión del taller automotriz.
+
+================================================================================
+FUNCIONES PRINCIPALES
+================================================================================
+
+1. NOMBRE: index()
+   DESCRIPCIÓN:
+       Función principal que maneja la ruta raíz ('/') de la aplicación.
+       Verifica si el usuario está autenticado en la sesión y redirige
+       apropiadamente a la página principal o al login.
+   PARÁMETROS: Ninguno
+   RETORNA: Redirección a '/login' o envío del archivo index.html
+   RELACIÓN CON EL SISTEMA:
+       Punto de entrada principal. Se relaciona con el sistema de sesiones
+       y el manejo de archivos estáticos del frontend.
+
+2. NOMBRE: serve_static(path)
+   DESCRIPCIÓN:
+       Maneja el envío de archivos estáticos del frontend (CSS, JS, imágenes, etc.)
+       para cualquier ruta que no sea manejada por otras funciones.
+   PARÁMETROS:
+       - path (str): Ruta del archivo solicitado relativa al directorio frontend
+   RETORNA: Archivo estático solicitado
+   RELACIÓN CON EL SISTEMA:
+       Esencial para el funcionamiento del frontend. Se relaciona con todas
+       las páginas web que requieren recursos estáticos.
+
+================================================================================
+CRUD - CLIENTES
+================================================================================
+
+3. NOMBRE: get_clientes()
+   DESCRIPCIÓN:
+       Recupera todos los registros de clientes de la base de datos y los
+       devuelve en formato JSON con todos sus campos.
+   PARÁMETROS: Ninguno
+   RETORNA: JSON array con objetos cliente (id, nombre, apellido, telefono, email, direccion)
+   RELACIÓN CON EL SISTEMA:
+       Proporciona datos para la interfaz de gestión de clientes.
+       Se relaciona con las tablas Cliente y se usa en reportes PDF.
+
+4. NOMBRE: create_cliente()
+   DESCRIPCIÓN:
+       Crea un nuevo registro de cliente en la base de datos.
+       Valida que no exista un cliente con el mismo email o teléfono.
+   PARÁMETROS: JSON con datos del cliente (nombre, apellido, telefono, email, direccion)
+   RETORNA: JSON con mensaje de éxito y ID del cliente creado, o error 409 si ya existe
+   RELACIÓN CON EL SISTEMA:
+       Se relaciona con la tabla Cliente y el sistema de validación de duplicados.
+       Es usado por el frontend para agregar nuevos clientes.
+
+5. NOMBRE: get_cliente(id)
+   DESCRIPCIÓN:
+       Recupera un cliente específico por su ID de la base de datos.
+   PARÁMETROS:
+       - id (int): ID del cliente a recuperar
+   RETORNA: JSON con datos del cliente o error 404 si no existe
+   RELACIÓN CON EL SISTEMA:
+       Se relaciona con la tabla Cliente. Usado para editar clientes específicos.
+
+6. NOMBRE: update_cliente(id)
+   DESCRIPCIÓN:
+       Actualiza los datos de un cliente existente en la base de datos.
+   PARÁMETROS:
+       - id (int): ID del cliente a actualizar
+       - JSON con campos a actualizar (nombre, apellido, telefono, email, direccion)
+   RETORNA: JSON con mensaje de éxito o error 404 si no existe
+   RELACIÓN CON EL SISTEMA:
+       Se relaciona con la tabla Cliente. Usado por el frontend para modificar datos.
+
+7. NOMBRE: delete_cliente(id)
+   DESCRIPCIÓN:
+       Elimina un cliente de la base de datos por su ID.
+   PARÁMETROS:
+       - id (int): ID del cliente a eliminar
+   RETORNA: JSON con mensaje de éxito o error 404 si no existe
+   RELACIÓN CON EL SISTEMA:
+       Se relaciona con la tabla Cliente. Puede afectar órdenes y vehículos asociados.
+
+================================================================================
+CRUD - INVENTARIO
+================================================================================
+
+8. NOMBRE: get_inventario()
+   DESCRIPCIÓN:
+       Recupera todos los items del inventario de la base de datos.
+   PARÁMETROS: Ninguno
+   RETORNA: JSON array con objetos de inventario (id, nombre, descripcion, cantidad, precio, categoria)
+   RELACIÓN CON EL SISTEMA:
+       Proporciona datos para la gestión de stock. Se relaciona con la tabla Inventario.
+
+9. NOMBRE: create_inventario()
+   DESCRIPCIÓN:
+       Crea un nuevo item en el inventario.
+   PARÁMETROS: JSON con datos del item (nombre, descripcion, cantidad, precio, categoria)
+   RETORNA: JSON con mensaje de éxito y ID del item creado
+   RELACIÓN CON EL SISTEMA:
+       Se relaciona con la tabla Inventario. Usado para agregar nuevos productos/servicios.
+
+10. NOMBRE: get_inventario_item(id)
+    DESCRIPCIÓN:
+        Recupera un item específico del inventario por su ID.
+    PARÁMETROS:
+        - id (int): ID del item a recuperar
+    RETORNA: JSON con datos del item o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Inventario. Usado para editar items específicos.
+
+11. NOMBRE: update_inventario(id)
+    DESCRIPCIÓN:
+        Actualiza los datos de un item del inventario.
+    PARÁMETROS:
+        - id (int): ID del item a actualizar
+        - JSON con campos a actualizar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Inventario. Usado para modificar stock y precios.
+
+12. NOMBRE: delete_inventario(id)
+    DESCRIPCIÓN:
+        Elimina un item del inventario por su ID.
+    PARÁMETROS:
+        - id (int): ID del item a eliminar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Inventario. Puede afectar órdenes de trabajo.
+
+================================================================================
+CRUD - VEHÍCULOS
+================================================================================
+
+13. NOMBRE: get_vehiculos()
+    DESCRIPCIÓN:
+        Recupera todos los vehículos registrados en el sistema.
+    PARÁMETROS: Ninguno
+    RETORNA: JSON array con objetos vehículo (id, marca, modelo, anio, placa, cliente_id)
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Vehiculo y Cliente. Usado para gestión de flota.
+
+14. NOMBRE: create_vehiculo()
+    DESCRIPCIÓN:
+        Registra un nuevo vehículo en el sistema.
+    PARÁMETROS: JSON con datos del vehículo (marca, modelo, anio, placa, cliente_id)
+    RETORNA: JSON con mensaje de éxito y ID del vehículo creado
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con las tablas Vehiculo y Cliente. Usado para asociar vehículos a clientes.
+
+15. NOMBRE: update_vehiculo(id)
+    DESCRIPCIÓN:
+        Actualiza los datos de un vehículo existente.
+    PARÁMETROS:
+        - id (int): ID del vehículo a actualizar
+        - JSON con campos a actualizar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Vehiculo. Usado para modificar información de vehículos.
+
+16. NOMBRE: delete_vehiculo(id)
+    DESCRIPCIÓN:
+        Elimina un vehículo del sistema por su ID.
+    PARÁMETROS:
+        - id (int): ID del vehículo a eliminar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Vehiculo. Puede afectar órdenes de trabajo asociadas.
+
+================================================================================
+CRUD - ÓRDENES DE TRABAJO
+================================================================================
+
+17. NOMBRE: get_ordenes()
+    DESCRIPCIÓN:
+        Recupera todas las órdenes de trabajo con información del cliente asociado.
+    PARÁMETROS: Ninguno
+    RETORNA: JSON array con objetos orden incluyendo nombre del cliente
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con las tablas Orden y Cliente. Proporciona vista completa de trabajos.
+
+18. NOMBRE: get_orden(id)
+    DESCRIPCIÓN:
+        Recupera una orden específica por su ID.
+    PARÁMETROS:
+        - id (int): ID de la orden a recuperar
+    RETORNA: JSON con datos de la orden o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Orden. Usado para ver detalles específicos.
+
+19. NOMBRE: create_orden()
+    DESCRIPCIÓN:
+        Crea una nueva orden de trabajo en el sistema.
+    PARÁMETROS: JSON con datos de la orden (descripcion, estado, cliente_id, vehiculo_id)
+    RETORNA: JSON con mensaje de éxito y ID de la orden creada
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con las tablas Orden, Cliente y Vehiculo. Es el núcleo del sistema de órdenes.
+
+20. NOMBRE: update_orden(id)
+    DESCRIPCIÓN:
+        Actualiza los datos de una orden existente.
+    PARÁMETROS:
+        - id (int): ID de la orden a actualizar
+        - JSON con campos a actualizar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Orden. Usado para cambiar estado y detalles de trabajos.
+
+21. NOMBRE: delete_orden(id)
+    DESCRIPCIÓN:
+        Elimina una orden de trabajo del sistema.
+    PARÁMETROS:
+        - id (int): ID de la orden a eliminar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Orden. Elimina trabajos del sistema.
+
+================================================================================
+CRUD - EMPLEADOS
+================================================================================
+
+22. NOMBRE: get_empleados()
+    DESCRIPCIÓN:
+        Recupera todos los empleados registrados en el sistema.
+    PARÁMETROS: Ninguno
+    RETORNA: JSON array con objetos empleado (id, nombre, apellido, puesto, telefono, email)
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Empleado. Usado para gestión del personal.
+
+23. NOMBRE: get_empleado(id)
+    DESCRIPCIÓN:
+        Recupera un empleado específico por su ID.
+    PARÁMETROS:
+        - id (int): ID del empleado a recuperar
+    RETORNA: JSON con datos del empleado o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Empleado. Usado para editar información de empleados.
+
+24. NOMBRE: create_empleado()
+    DESCRIPCIÓN:
+        Registra un nuevo empleado en el sistema.
+    PARÁMETROS: JSON con datos del empleado (nombre, apellido, puesto, telefono, email)
+    RETORNA: JSON con mensaje de éxito y ID del empleado creado
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Empleado. Usado para agregar nuevo personal.
+
+25. NOMBRE: update_empleado(id)
+    DESCRIPCIÓN:
+        Actualiza los datos de un empleado existente.
+    PARÁMETROS:
+        - id (int): ID del empleado a actualizar
+        - JSON con campos a actualizar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Empleado. Usado para modificar información del personal.
+
+26. NOMBRE: delete_empleado(id)
+    DESCRIPCIÓN:
+        Elimina un empleado del sistema por su ID.
+    PARÁMETROS:
+        - id (int): ID del empleado a eliminar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Empleado. Usado para remover personal del sistema.
+
+================================================================================
+CRUD - PROVEEDORES
+================================================================================
+
+27. NOMBRE: get_proveedores()
+    DESCRIPCIÓN:
+        Recupera todos los proveedores registrados en el sistema.
+    PARÁMETROS: Ninguno
+    RETORNA: JSON array con objetos proveedor (id, nombre, contacto, telefono, email, direccion)
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Proveedor. Usado para gestión de proveedores.
+
+28. NOMBRE: create_proveedor()
+    DESCRIPCIÓN:
+        Registra un nuevo proveedor en el sistema.
+    PARÁMETROS: JSON con datos del proveedor (nombre, contacto, telefono, email, direccion)
+    RETORNA: JSON con mensaje de éxito y ID del proveedor creado
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Proveedor. Usado para agregar nuevos proveedores.
+
+29. NOMBRE: update_proveedor(id)
+    DESCRIPCIÓN:
+        Actualiza los datos de un proveedor existente.
+    PARÁMETROS:
+        - id (int): ID del proveedor a actualizar
+        - JSON con campos a actualizar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Proveedor. Usado para modificar información de proveedores.
+
+30. NOMBRE: delete_proveedor(id)
+    DESCRIPCIÓN:
+        Elimina un proveedor del sistema por su ID.
+    PARÁMETROS:
+        - id (int): ID del proveedor a eliminar
+    RETORNA: JSON con mensaje de éxito o error 404 si no existe
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Proveedor. Usado para remover proveedores del sistema.
+
+================================================================================
+GENERACIÓN DE REPORTES PDF
+================================================================================
+
+31. NOMBRE: generate_pdf(entity)
+    DESCRIPCIÓN:
+        Genera un reporte PDF para una entidad específica del sistema.
+        Incluye logo, encabezado, tabla de datos y fecha de generación.
+    PARÁMETROS:
+        - entity (str): Nombre de la entidad ('clientes', 'inventario', 'ordenes', 'empleados', 'proveedores')
+    RETORNA: Archivo PDF como respuesta HTTP con attachment
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con todas las entidades del sistema. Usa ReportLab para generar PDFs.
+        Proporciona funcionalidad de reportes para exportar datos.
+
+================================================================================
+AUTENTICACIÓN Y SESIONES
+================================================================================
+
+32. NOMBRE: login()
+    DESCRIPCIÓN:
+        Maneja el proceso de autenticación de usuarios.
+        Verifica credenciales contra la tabla Admin usando hash SHA-256.
+    PARÁMETROS: JSON con usuario y password
+    RETORNA: JSON con mensaje de éxito o error de autenticación
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con la tabla Admin y el sistema de sesiones de Flask.
+        Es el punto de entrada seguro al sistema.
+
+33. NOMBRE: logout()
+    DESCRIPCIÓN:
+        Cierra la sesión del usuario actual eliminando variables de sesión.
+    PARÁMETROS: Ninguno
+    RETORNA: JSON con mensaje de éxito
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con el sistema de sesiones de Flask. Libera recursos de sesión.
+
+34. NOMBRE: app_page()
+    DESCRIPCIÓN:
+        Maneja la ruta protegida '/app' que requiere autenticación.
+        Redirige a login si el usuario no está autenticado.
+    PARÁMETROS: Ninguno
+    RETORNA: Página principal o redirección a login
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con el sistema de sesiones. Protege el acceso a la aplicación principal.
+
+35. NOMBRE: login_page()
+    DESCRIPCIÓN:
+        Sirve la página de login al usuario.
+    PARÁMETROS: Ninguno
+    RETORNA: Archivo login.html del frontend
+    RELACIÓN CON EL SISTEMA:
+        Se relaciona con el sistema de archivos estáticos. Proporciona la interfaz de login.
+
+================================================================================
+RESUMEN TÉCNICO
+================================================================================
+
+El módulo backend/app.py implementa una API REST completa para el sistema de gestión
+del Taller Valenciano Guayaquil 2025 usando Flask como framework web y SQLAlchemy
+como ORM para PostgreSQL.
+
+El sistema maneja seis entidades principales: Clientes, Inventario, Vehículos,
+Órdenes de Trabajo, Empleados y Proveedores, cada una con operaciones CRUD completas.
+
+Incluye sistema de autenticación basado en sesiones, generación de reportes PDF,
+y validaciones de integridad de datos. La arquitectura sigue principios RESTful
+con manejo adecuado de errores HTTP y respuestas JSON estructuradas.
+
+El módulo se integra completamente con el frontend mediante CORS y sirve archivos
+estáticos, proporcionando una experiencia web completa para la gestión del taller.

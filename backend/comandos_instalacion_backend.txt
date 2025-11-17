@@ -1,0 +1,45 @@
+Comandos para Instalar las Dependencias del Backend
+==================================================
+
+Requisitos Previos:
+- Tener Python 3.x instalado en el sistema
+- Tener pip (gestor de paquetes de Python) instalado
+
+Comandos de Instalación:
+
+1. Instalar todas las dependencias desde requirements.txt:
+   pip install -r requirements.txt
+
+2. Si pip no está instalado, instalarlo primero:
+   python -m ensurepip --upgrade
+
+3. Verificar que las dependencias se instalaron correctamente:
+   pip list
+
+Dependencias Incluidas en requirements.txt:
+- Flask==2.3.3
+- Flask-CORS==4.0.0
+- supabase==1.0.3
+- reportlab==4.0.4
+- python-dotenv==1.0.0
+
+Comandos Adicionales para Desarrollo:
+- Para crear un entorno virtual (recomendado):
+  python -m venv venv
+
+- Activar el entorno virtual (Windows):
+  venv\Scripts\activate
+
+- Activar el entorno virtual (Linux/Mac):
+  source venv/bin/activate
+
+- Instalar dependencias dentro del entorno virtual:
+  pip install -r requirements.txt
+
+- Ejecutar la aplicación:
+  python app.py
+
+Notas:
+- Asegúrate de estar en el directorio 'backend' cuando ejecutes los comandos
+- Si usas un entorno virtual, actívalo antes de instalar las dependencias
+- Las versiones específicas están fijadas en requirements.txt para evitar conflictos
