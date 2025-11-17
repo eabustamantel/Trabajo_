@@ -11,7 +11,7 @@ from backend.models import (
     get_admin_by_credentials, create_admin,
     supabase
 )
-from config import Config
+from backend.config import Config
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
