@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory, redirect, session
 from flask_cors import CORS
-from models import (
+from backend.models import (
     initialize_tables,
     get_clientes, get_cliente_by_id, create_cliente, update_cliente, delete_cliente,
     get_inventarios, get_inventario_by_id, create_inventario, update_inventario, delete_inventario,
