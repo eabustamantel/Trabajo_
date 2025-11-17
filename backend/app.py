@@ -30,7 +30,7 @@ CORS(app)
 
 @app.route('/')
 def index():
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory('../frontend', 'inicio.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
