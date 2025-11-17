@@ -30,10 +30,7 @@ CORS(app)
 
 @app.route('/')
 def index():
-    if 'logged_in' in session:
-        return send_from_directory('../frontend', 'index.html')
-    else:
-        return redirect('/login')
+    return send_from_directory('../frontend', 'index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
