@@ -41,12 +41,13 @@ def serve_static(path):
 
 # CRUD for Clientes
 @app.route('/api/clientes', methods=['GET'])
-def get_clientes_endpoint():
+def api_get_clientes():
     try:
-        clientes = get_clientes()
+        clientes = get_clientes()  # esta es la función importada desde models
         return jsonify(clientes)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/clientes', methods=['POST'])
 def create_cliente_endpoint():
@@ -148,7 +149,7 @@ def delete_inventario_endpoint(id):
 
 # CRUD for Vehiculos
 @app.route('/api/vehiculos', methods=['GET'])
-def get_vehiculos():
+def api_get_vehiculos():
     try:
         vehiculos = get_vehiculos()
         return jsonify(vehiculos)
