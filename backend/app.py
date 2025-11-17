@@ -488,6 +488,9 @@ def app_page():
         return send_from_directory('../frontend', 'index.html')
     else:
         return redirect('/login')
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"status": "ok", "message": "Backend funcionando 🚀"})
 
 # Serve login page
 @app.route('/login')
