@@ -1,5 +1,5 @@
 from supabase import create_client, Client
-from config import Config
+from backend.config import Config
 import os
 
 # Inicializar cliente de Supabase
