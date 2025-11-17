@@ -43,7 +43,7 @@ def serve_static(path):
 @app.route('/api/clientes', methods=['GET'])
 def api_get_clientes():
     try:
-        clientes = get_clientes()  # esta es la función importada desde models
+        clientes = get_clientes()  
         return jsonify(clientes)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -55,9 +55,14 @@ def create_cliente_endpoint():
         data = request.get_json()
 
         # Check for existing client by email or telefono
-        existing_clientes = supabase.table('clientes').select('*').or_(
-            f"email.eq.{data.get('email')},telefono.eq.{data.get('telefono')}"
-        ).execute()
+        existing_clientes = (
+             supabase
+             .table("clientes")
+             .select("*")
+             .filter("email", "eq", data.get("email"))
+             .filter("telefono", "eq", data.get("telefono"))
+             .execute()
+        )
 
         if existing_clientes.data:
             return jsonify({'error': '⚠️ El cliente ya existe. No se puede duplicar el registro.'}), 409
