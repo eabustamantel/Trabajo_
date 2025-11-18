@@ -1,5 +1,5 @@
 
-const API_BASE = 'https://trabajo-production.up.railway.app/api';
+const API_BASE = 'https://taller-valenciano-guayaquil-2025.up.railway.app/api';
 
 let currentEntity = '';
 
